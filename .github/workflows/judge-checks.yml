@@ -33,7 +33,7 @@ jobs:
           npx wrangler d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0001_wakeful_juggernaut.sql --yes
       - name: Verify real local HTTP workflows
         run: |
-          npm run dev -- --host 127.0.0.1 --port 4320 > /tmp/understudy-ci.log 2>&1 &
+          npm run dev -- --hostname 127.0.0.1 --port 4320 > /tmp/understudy-ci.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           for attempt in $(seq 1 60); do

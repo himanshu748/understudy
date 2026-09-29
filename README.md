@@ -24,7 +24,7 @@ Use Node 22.13 or later. The isolated MCP walkthrough needs no database, login o
 
 ```sh
 npm ci
-npm run dev -- --host 127.0.0.1 --port 4320
+npm run dev -- --hostname 127.0.0.1 --port 4320
 ```
 
 Open http://localhost:4320/demo. Run the default request, select the substitution comparison, add the demo instruction, then request kit 01 using available kit 02 with borrower confirmation. Inspect the comparison with confirmation removed. Records are fictional; the protocol calls and evaluator are real.

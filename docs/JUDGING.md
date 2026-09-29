@@ -4,7 +4,7 @@ Track: Alexa+. Route: self-hosted MCP 2025-11-25 over Streamable HTTP.
 
 ## No credentials required
 
-Install Node 22.13 or newer, run `npm ci`, then `npm run dev -- --host 127.0.0.1 --port 4320`. Open http://localhost:4320/demo. No cloud account, API key, database migration or gated Alexa tool is required for this route.
+Install Node 22.13 or newer, run `npm ci`, then `npm run dev -- --hostname 127.0.0.1 --port 4320`. Open http://localhost:4320/demo. No cloud account, API key, database migration or gated Alexa tool is required for this route.
 
 1. Leave the demo instruction missing. Run the default checkout for Ari and kit 02. The baseline permits checkout.
 2. Inspect the selected comparison: requesting kit 01 instead reveals an unset substitution instruction.
