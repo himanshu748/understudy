@@ -1,0 +1,49 @@
+name: Judge checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      WRANGLER_SEND_METRICS: "false"
+      UNDERSTUDY_TEST_URL: http://127.0.0.1:4320
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install and verify source
+        run: |
+          npm ci
+          npm test
+          npm run check
+          npm run lint
+          npm run build
+      - name: Initialize isolated local D1
+        run: |
+          npx wrangler d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_fine_sebastian_shaw.sql --yes
+          npx wrangler d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0001_wakeful_juggernaut.sql --yes
+      - name: Verify real local HTTP workflows
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 4320 > /tmp/understudy-ci.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:4320/demo > /dev/null; then break; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:4320/demo > /dev/null
+          npm run test:demo-api
+          npm run test:api
+          npm run test:archive-api
+      - name: Print server diagnostics on failure
+        if: failure()
+        run: tail -n 120 /tmp/understudy-ci.log 2>/dev/null || true

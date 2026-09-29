@@ -8,6 +8,8 @@ The daily overview shows actual open loans, outstanding components, maintenance 
 
 [Local introduction](http://localhost:4320) · [Judge demo](http://localhost:4320/demo)
 
+Submitted to the Amazon Developer Hackathon on 28 September 2026: [Devpost entry](https://devpost.com/software/understudy-lf5dbt) · [public demo video](https://www.youtube.com/watch?v=s8CCvcBZOeo). The entry uses the permitted self-hosted MCP demonstration route. It does not claim Alexa+ distribution or an Echo-device demonstration.
+
 ## Storage and identity
 
 Sign in with ChatGPT identifies the visitor. Server reads and writes check workspace ownership. Cloudflare D1 persists records; a compare-and-swap revision commits inventory changes and receipts together. Request IDs return the original receipt when a response is lost, including after a shift closes or the receipt enters the archive.
@@ -63,9 +65,9 @@ Browser verification used stored operator-entered test records to exercise empty
 
 `POST /api/mcp?workspace=<owned-workspace-id>` uses the official `@modelcontextprotocol/sdk` server, protocol **2025-11-25**, and stateless Streamable HTTP with JSON responses. It exposes `inspect_desk`, `probe_request` and `read_receipt`. Each request requires the site's authenticated session and matching origin; the server scopes all reads to that owner and workspace, including archived receipts. GET and DELETE return 405 because this endpoint has no SSE stream or persistent sessions. Tools cannot modify policy or execute loans. The browser uses a small same-origin transport; the official SDK client is independently covered by the interoperability tests.
 
-The rehearsal is a deterministic workflow using explicit configured rules. Handbook prose is retained for operator review; an LLM does not interpret it. Alexa+ distribution, external-agent OAuth, Bedrock and AgentCore are not connected. Do not present the browser rehearsal as an Echo recording or a completed Alexa+ integration. Final track evidence still needs the permitted demonstration route and the current event's submission requirements.
+The rehearsal is a deterministic workflow using explicit configured rules. Handbook prose is retained for operator review; an LLM does not interpret it. Alexa+ distribution, external-agent OAuth, Bedrock and AgentCore are not connected. Do not present the browser rehearsal as an Echo recording or a completed Alexa+ integration. The submitted evidence uses the permitted self-hosted MCP route.
 
-The hosted audience is owner-only. Team invitations, public sign-up, billing and account recovery outside the identity provider are not implemented. Identification is an operator-attested boolean; the app does not collect identification documents. No customer adoption, institutional affiliation or hackathon submission is claimed.
+The hosted audience is owner-only. Team invitations, public sign-up, billing and account recovery outside the identity provider are not implemented. Identification is an operator-attested boolean; the app does not collect identification documents. No customer adoption or institutional affiliation is claimed.
 
 ## Two-minute demonstration
 
@@ -83,4 +85,8 @@ Open `/demo` for an isolated fictional rehearsal that requires no application lo
 
 The landing page now contains a React-controlled three-stage example backed by the existing evaluator. Agent rehearsal prioritizes instruction gaps and provides a direct policy-review action for a selected gap. Sample workspace creation opens on Agent rehearsal.
 
-Run `npm test` before `npm run test:demo-api`; the latter uses the compiled browser client against localhost. September 28 validation: 35 suite tests, TypeScript, lint, production build, demo HTTP checks and the existing lending API lifecycle passed. Desktop and fixed-width phone/tablet browser checks passed without horizontal overflow. The current revision has not been deployed or submitted.
+Run `npm test` before `npm run test:demo-api`; the latter uses the compiled browser client against localhost. September 28 validation: 35 suite tests, TypeScript, lint, production build, demo HTTP checks and the existing lending API lifecycle passed. Desktop and fixed-width phone/tablet browser checks passed without horizontal overflow. The public source and video were submitted; a publicly accessible hosted app has not been verified.
+
+## Repeatable judge checks
+
+The **Judge checks** GitHub Actions workflow installs from the lockfile on Node 22, runs the test suite, typecheck, lint and production build, then initializes a disposable local D1 database. It exercises the demo MCP endpoint, full lending lifecycle and archive-boundary regression over HTTP. It uses only the localhost development identity and fictional test records; no cloud credentials, hosted database or production account are involved. A passing run establishes a clean Linux checkout, not hosted sign-in or Alexa hardware behavior.
