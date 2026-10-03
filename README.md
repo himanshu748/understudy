@@ -1,5 +1,7 @@
 # Understudy operator app
 
+[Try the judge workflow](JUDGE-GUIDE.md) · [Current dependency review](DEPENDENCY-REVIEW.md).
+
 Understudy is a private lending desk for shared equipment. Start with an empty workspace, import equipment from CSV, record borrower references, approve explicit lending settings and rehearse a request before opening a shift. The desk commits checkouts, renewals and individual component returns. Equipment becomes available again only after every recorded component returns.
 
 The daily overview shows actual open loans, outstanding components, maintenance notes and setup requirements. Operators can edit records, archive inactive equipment and borrowers, save rehearsals, review policy snapshots, download a shift handoff and export the full workspace. An optional sample workspace is clearly labeled and stored separately.
