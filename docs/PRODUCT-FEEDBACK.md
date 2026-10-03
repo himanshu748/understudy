@@ -10,7 +10,7 @@ The MCP SDK allowed the same inspect, probe and receipt tools to serve the brows
 
 ## What needs work
 
-Alexa+ preview tooling was unavailable to participants, so this entry demonstrates the permitted self-hosted MCP route with its own frontend. The project does not claim Alexa+ distribution. The build emits Vinext JSON-import and route-classification warnings despite passing. Cross-origin HTTP checks also exposed that Vinext can reject a request before the route executes; tests distinguish the framework response from route-level guards.
+Alexa+ preview tooling was unavailable to participants, so this entry demonstrates the permitted self-hosted MCP route with its own frontend. The project does not claim Alexa+ distribution. Adding the required JSON import attribute resolved the JSON-import warning on 3 October; Vinext route-classification warnings remain despite a passing build. Cross-origin HTTP checks also exposed that Vinext can reject a request before the route executes; tests distinguish the framework response from route-level guards.
 
 ## Onboarding
 
@@ -23,4 +23,4 @@ Yes to the MCP SDK for typed tools and explicit outputs, and D1 for this small t
 ## Mini-challenges
 
 AWS Builder: No. No qualifying AWS service or Kiro Crew development use is claimed.
-Open Source: No. The primary application is MIT licensed, but an additional contribution has not been prepared for the separate mini-challenge.
+Open Source: Yes. The separate contributions to Amazon's Ring sample are [bounded event-history pagination, PR #25](https://github.com/AmazonAppDev/ring-api-helloworld/pull/25) and [webhook stream cleanup, PR #27](https://github.com/AmazonAppDev/ring-api-helloworld/pull/27), with 11 and 5 offline regression tests respectively. Both remain open at the 3 October check; neither is claimed merged. The webhook issue preceded its PR. Pagination's [discussion issue #28](https://github.com/AmazonAppDev/ring-api-helloworld/issues/28) was opened retrospectively, so it does not satisfy the contribution guide's earlier discussion step.

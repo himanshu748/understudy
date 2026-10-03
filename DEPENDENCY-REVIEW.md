@@ -2,7 +2,7 @@
 
 Compatible Cloudflare plugin, Wrangler and matching Workers type updates, followed by nonbreaking lockfile fixes, reduced `npm audit` from 21 reported dependency nodes to 13. These counts include packages affected through a shared underlying dependency; they are not counts of independent application vulnerabilities.
 
-The updated tree uses `ws@8.21.0`, `sharp@0.35.4` and current Wrangler esbuild. Tests, typechecking, lint and the production build passed after the tool updates. Local D1/HTTP checks also passed for MCP negotiation, the lending lifecycle and archive-boundary recovery. A clean Linux CI run remains a separate check.
+The updated tree uses `ws@8.21.0`, `sharp@0.35.4` and current Wrangler esbuild. Tests, typechecking, lint and the production build passed after the tool updates. Local D1/HTTP checks also passed for MCP negotiation, the lending lifecycle and archive-boundary recovery. A [clean Linux CI run](https://github.com/himanshu748/understudy/actions/runs/37130383099) passed those checks independently.
 
 Two underlying advisories remain:
 
