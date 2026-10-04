@@ -45,7 +45,7 @@ export default function DemoPage() {
               </strong>
               <p>
                 {instruction
-                  ? 'Run another rehearsal. The boundary now depends on consent.'
+                  ? 'Your request stays selected. Run it again to see the consent boundary.'
                   : 'Run the request first. Inspect what happens when it becomes a substitution.'}
               </p>
             </div>
@@ -74,7 +74,7 @@ export default function DemoPage() {
           </div>
         </div>
         <AgentRehearsal
-          key={`${instruction}-${session}`}
+          key={session}
           workspace={demoWorkspace(instruction)}
           demo
           endpoint={`/api/demo/mcp?instruction=${instruction ? 'confirm' : 'missing'}`}

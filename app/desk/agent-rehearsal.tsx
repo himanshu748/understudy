@@ -37,12 +37,45 @@ export function AgentRehearsal({
     confirmed: false,
   });
   const [report, setReport] = useState<Probe | null>(null);
+  const [previousReport, setPreviousReport] = useState<Probe | null>(null);
+  const [revisionNotice, setRevisionNotice] = useState('');
   const [selected, setSelected] = useState('');
   const [trace, setTrace] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const generation = useRef(0),
     connection = useRef<AgentClient | null>(null);
+  const currentReport = useRef(report);
+  useEffect(() => { currentReport.current = report; }, [report]);
+  const lastWorkspace = useRef({ id: workspace.id, revision: workspace.revision });
+  useEffect(() => {
+    const previous = lastWorkspace.current;
+    lastWorkspace.current = { id: workspace.id, revision: workspace.revision };
+    if (previous.id === workspace.id && previous.revision === workspace.revision)
+      return;
+    // A changed instruction must invalidate even a check still in flight.
+    generation.current += 1;
+    void connection.current?.close().catch(() => {});
+    connection.current = null;
+    setBusy(false);
+    setPreviousReport(previous.id === workspace.id ? currentReport.current : null);
+    setReport(null);
+    setTrace([]);
+    setError('');
+    setRevisionNotice(
+      workspace.data.kits.some((item) => item.id === request.kit) &&
+      workspace.data.borrowers.some((item) => item.id === request.borrower)
+        ? 'The desk changed. Your request is still selected. Run it again against the current instruction.'
+        : 'The desk changed. Some selected records are unavailable. Choose current equipment and a borrower before running again.',
+    );
+  }, [
+    workspace.id,
+    workspace.revision,
+    workspace.data.kits,
+    workspace.data.borrowers,
+    request.kit,
+    request.borrower,
+  ]);
   useEffect(
     () => () => {
       generation.current += 1;
@@ -51,20 +84,32 @@ export function AgentRehearsal({
     [],
   );
   const kit = workspace.data.kits.find((k) => k.id === request.kit);
+  const borrower = workspace.data.borrowers.find(
+    (b) => b.id === request.borrower,
+  );
   const stale =
     report &&
     (report.workspaceId !== workspace.id ||
       report.revision !== workspace.revision);
   const contrast =
     report?.contrasts.find((c) => c.id === selected) || report?.contrasts[0];
+  const sameRequest = previousReport && report &&
+    previousReport.request.action === report.request.action &&
+    previousReport.request.borrower === report.request.borrower &&
+    previousReport.request.kit === report.request.kit &&
+    previousReport.request.requestedKit === report.request.requestedKit &&
+    previousReport.request.confirmed === report.request.confirmed &&
+    previousReport.request.component === report.request.component;
   function update(patch: Partial<Request>) {
     setRequest((old) => ({ ...old, ...patch }));
     setReport(null);
+    setPreviousReport(null);
+    setRevisionNotice('');
     setTrace([]);
     setError('');
   }
   async function run() {
-    if (busy) return;
+    if (busy || !kit || !borrower) return;
     const runId = ++generation.current;
     setBusy(true);
     setError('');
@@ -124,6 +169,7 @@ export function AgentRehearsal({
         );
       if (runId !== generation.current) return;
       setReport(probe);
+      setRevisionNotice('');
       setSelected(
         probe.contrasts.find((c) => c.decision.kind === 'gap')?.id ||
           probe.contrasts.find((c) => c.changedOutcome)?.id ||
@@ -195,6 +241,11 @@ export function AgentRehearsal({
           }}
         >
           <h2>The next request</h2>
+          {revisionNotice && (
+            <output className="agent-revision-notice">
+              <RefreshCw size={17} /> {revisionNotice}
+            </output>
+          )}
           <fieldset disabled={busy}>
             <legend className="sr-only">Choose a request to rehearse</legend>
             <label>
@@ -224,6 +275,11 @@ export function AgentRehearsal({
                 {!workspace.data.borrowers.length && (
                   <option value="">Add a borrower first</option>
                 )}
+                {!!workspace.data.borrowers.length && !borrower && (
+                  <option value={request.borrower} disabled>
+                    Choose a current borrower
+                  </option>
+                )}
                 {workspace.data.borrowers.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.name}
@@ -249,6 +305,11 @@ export function AgentRehearsal({
               >
                 {!workspace.data.kits.length && (
                   <option value="">Add equipment first</option>
+                )}
+                {!!workspace.data.kits.length && !kit && (
+                  <option value={request.kit} disabled>
+                    Choose current equipment
+                  </option>
                 )}
                 {workspace.data.kits.map((k) => (
                   <option key={k.id} value={k.id}>
@@ -305,10 +366,21 @@ export function AgentRehearsal({
               </label>
             )}
           </fieldset>
+          {(!kit || !borrower) && (
+            <p className="agent-note">
+              {!kit && !borrower
+                ? 'The selected equipment and borrower are unavailable.'
+                : !kit
+                  ? 'The selected equipment is unavailable.'
+                  : 'The selected borrower is unavailable.'}{' '}
+              Choose current records above. If none are available, add records
+              in your workspace first.
+            </p>
+          )}
           <Button
             className="desk-button"
             type="submit"
-            disabled={busy || !kit || !request.borrower}
+            disabled={busy || !kit || !borrower}
           >
             {busy ? (
               <LoaderCircle className="spin" size={17} />
@@ -342,7 +414,11 @@ export function AgentRehearsal({
             ))}
           </ol>
         </form>
-        <div className="agent-findings" aria-live="polite" aria-busy={busy}>
+        <div
+          className="agent-findings"
+          aria-live={report ? 'polite' : 'off'}
+          aria-busy={busy}
+        >
           {!report ? (
             <div className="agent-empty">
               <h2>Find the instruction’s edge.</h2>
@@ -391,6 +467,29 @@ export function AgentRehearsal({
               </div>
               <h2>{report.decision.title}</h2>
               <p>{report.decision.explanation}</p>
+              {previousReport && !stale && sameRequest && (
+                <section className="agent-policy-comparison" aria-label="Same request across saved desk revisions">
+                  <h3>{previousReport.policyVersion !== report.policyVersion
+                    ? 'Same request. Updated policy.'
+                    : 'Same request. Updated desk records.'}</h3>
+                  <p>Only the saved desk changed; the selected request stayed the same.</p>
+                  <dl>
+                    <div>
+                      <dt>Previous check · Desk revision {previousReport.revision} · Policy v{previousReport.policyVersion}</dt>
+                      <dd>{previousReport.decision.title}</dd>
+                    </div>
+                    <div>
+                      <dt>Current check · Desk revision {report.revision} · Policy v{report.policyVersion}</dt>
+                      <dd>{report.decision.title}</dd>
+                    </div>
+                  </dl>
+                  <p>{previousReport.policyVersion === report.policyVersion
+                    ? 'The policy version is unchanged; saved desk records changed.'
+                    : demo
+                      ? 'The fictional records are unchanged; only the substitution instruction changed.'
+                      : 'The policy version changed. Other saved records may also have changed.'} This comparison is a rehearsal, not a lending receipt.</p>
+                </section>
+              )}
               <p className="agent-references">
                 Rules checked:{' '}
                 {report.decision.refs.join(' · ') || 'Record checks'}

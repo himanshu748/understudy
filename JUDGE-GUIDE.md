@@ -7,6 +7,8 @@ Understudy helps an equipment-desk operator discover a missing lending instructi
 3. Approve the demo substitution instruction and run the same comparison. Remove borrower confirmation; approval of the instruction does not waive that evidence requirement.
 4. Download the report and inspect the recorded request and changed fact. The rehearsal cannot modify inventory.
 
+For a direct before/after check, reset the demo, choose a different **Originally requested** kit while keeping the available equipment selected, and run with borrower confirmation unchecked. Add the demo instruction and rerun: the selected request stays intact, and the original answers appear together with their policy versions. Now check borrower confirmation and rerun to see the allowed outcome. Editing any request field clears the previous-request comparison; changing the instruction cancels any check still using its old revision. Reset clears the whole walkthrough.
+
 The fictional records are fresh for each scenario. Calls use the official MCP SDK, protocol 2025-11-25 and Streamable HTTP. The [event FAQ](https://amazonappdev2026.devpost.com/details/faqs) permits a self-hosted MCP demonstration and locally runnable repository. This entry does not demonstrate an Echo, Alexa+ distribution or an LLM interpreting handbook prose.
 
 The [full local workspace](README.md#full-local-workspace) adds operator-entered inventory, policy approval, explicit checkout, component returns and complete history export. The **Judge checks** workflow verifies these against isolated local D1. Its development identity is for localhost; production requires the documented trusted identity gateway.
