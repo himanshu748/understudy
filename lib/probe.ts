@@ -105,6 +105,19 @@ export function probeRequest(workspace: Workspace, input: Request): Probe {
   }
   if (request.action === 'renew') {
     add(
+      'renewal-count',
+      kit.renewals >= 1
+        ? 'What if this were the first extension?'
+        : 'What if this loan had already been extended?',
+      'Previous loan extensions',
+      String(kit.renewals),
+      kit.renewals >= 1 ? '0' : '1',
+      (copy) => {
+        copy.kits.find((k) => k.id === kit.id)!.renewals =
+          kit.renewals >= 1 ? 0 : 1;
+      },
+    );
+    add(
       'hold',
       kit.holds
         ? 'What if nobody is waiting?'

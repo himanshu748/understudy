@@ -78,6 +78,37 @@ test('return probes preserve recorded components and distinguish duplicate retur
   );
 });
 
+test('renewal probes expose the further-extension instruction gap in both directions', () => {
+  for (const previousExtensions of [0, 1, 3]) {
+    const workspace = makeWorkspace();
+    workspace.data.kits[0].borrower = 'member-a';
+    workspace.data.kits[0].due = '2026-10-01';
+    workspace.data.kits[0].renewals = previousExtensions;
+    const before = JSON.stringify(workspace);
+    const probe = probeRequest(workspace, { ...request, action: 'renew' });
+    const contrast = probe.contrasts.find((c) => c.id === 'renewal-count');
+    assert.equal(probe.decision.kind, previousExtensions ? 'gap' : 'ready');
+    assert.equal(contrast.before, String(previousExtensions));
+    assert.equal(contrast.after, previousExtensions ? '0' : '1');
+    assert.equal(contrast.decision.kind, previousExtensions ? 'ready' : 'gap');
+    assert.equal(contrast.changedOutcome, true);
+    assert.equal(JSON.stringify(workspace), before);
+  }
+});
+
+test('renewal-count contrasts keep waiting holds and borrower evidence intact', () => {
+  const workspace = makeWorkspace();
+  workspace.data.kits[0].borrower = 'member-a';
+  workspace.data.kits[0].holds = 1;
+  const before = JSON.stringify(workspace);
+  const probe = probeRequest(workspace, { ...request, action: 'renew' });
+  const contrast = probe.contrasts.find((c) => c.id === 'renewal-count');
+  assert.equal(contrast.decision.title, 'Someone is waiting');
+  assert.equal(contrast.changedOutcome, false);
+  assert.equal(JSON.stringify(workspace), before);
+  assert.ok(!probeRequest(makeWorkspace(), request).contrasts.some((c) => c.id === 'renewal-count'));
+});
+
 async function connect(workspace) {
   const calls = [];
   const receipt = { id: 'receipt-a', requestId: 'request-a', policyVersion: 1 };
@@ -164,6 +195,30 @@ test('tool schemas reject foreign records, extra request fields and unsupported 
       arguments: { requestId: 'request-a' },
     });
     assert.equal(saved.structuredContent.receipt.id, 'receipt-a');
+  } finally {
+    await client.close();
+  }
+});
+
+test('MCP delivers the further-renewal gap as a hypothetical read-only contrast', async () => {
+  const workspace = makeWorkspace();
+  workspace.data.kits[0].borrower = 'member-a';
+  workspace.data.kits[0].due = '2026-10-01';
+  const before = JSON.stringify(workspace);
+  const { client } = await connect(workspace);
+  try {
+    const result = await client.callTool({
+      name: 'probe_request',
+      arguments: { request: { ...request, action: 'renew' } },
+    });
+    assert.equal(result.isError, undefined);
+    assert.equal(result.structuredContent.decision.kind, 'ready');
+    const contrast = result.structuredContent.contrasts.find((c) => c.id === 'renewal-count');
+    assert.equal(contrast.question, 'What if this loan had already been extended?');
+    assert.equal(contrast.field, 'Previous loan extensions');
+    assert.equal(contrast.decision.kind, 'gap');
+    assert.match(contrast.decision.explanation, /outside this automated shift/);
+    assert.equal(JSON.stringify(workspace), before);
   } finally {
     await client.close();
   }
