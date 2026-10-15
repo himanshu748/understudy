@@ -1,6 +1,6 @@
 # Understudy operator app
 
-[Try the judge workflow](JUDGE-GUIDE.md) · [Current dependency review](DEPENDENCY-REVIEW.md).
+[Try the judge workflow](JUDGE-GUIDE.md) · [MIT license](LICENSE) · [Current dependency review](DEPENDENCY-REVIEW.md) · [Observed friction](FRICTION.md) · [Product feedback draft](PRODUCT-FEEDBACK.md).
 
 Understudy is a private lending desk for shared equipment. Start with an empty workspace, import equipment from CSV, record borrower references, approve explicit lending settings and rehearse a request before opening a shift. The desk commits checkouts, renewals and individual component returns. Equipment becomes available again only after every recorded component returns.
 
@@ -47,6 +47,12 @@ npm run dev -- --port 4320
 
 Run each migration once on a fresh database; existing local installations need only the new migration. The Sites plugin supplies a local-only test sign-in account. Hosted authentication does not use that identity. This repository includes generic local D1 bindings in `.openai/hosting.json` and no owner project identifier. No cloud account or API key is needed for the local demo. Keep the development server bound to localhost. Production deployment requires a trusted identity gateway that strips caller-supplied authentication headers; do not expose the private workspace routes behind an untrusted proxy.
 
+## Judge access and 15 October verification
+
+The local `/demo` route requires **no owner login, API key or database**. It uses fresh, explicitly fictional equipment/borrowers with actual MCP calls, not stored private workspace data. This is the default judge path; the owner-only hosted app is unnecessary. See [the judge guide](JUDGE-GUIDE.md) for exact Node 22 commands and the independent borrower-confirmation check.
+
+On Node **22.17.1**, all **38** suite tests, TypeScript, lint and the production build passed. A separate disposable source checkout with fresh local D1 migrations passed the demo HTTP/MCP guards, full lending lifecycle and 3,000-receipt archive-boundary regression. That local checkout reused the installed locked dependencies; the **Judge checks** CI independently runs `npm ci` on a clean Linux clone. These are local/CI checks, not hosted-login, Echo hardware or institutional validation.
+
 ## Verification
 
 ```sh
@@ -92,3 +98,9 @@ Run `npm test` before `npm run test:demo-api`; the latter uses the compiled brow
 ## Repeatable judge checks
 
 The **Judge checks** GitHub Actions workflow installs from the lockfile on Node 22, runs the test suite, typecheck, lint and production build, then initializes a disposable local D1 database. It exercises the demo MCP endpoint, full lending lifecycle and archive-boundary regression over HTTP. It uses only the localhost development identity and fictional test records; no cloud credentials, hosted database or production account are involved. A passing run establishes a clean Linux checkout, not hosted sign-in or Alexa hardware behavior.
+
+## AWS and development-tool disclosure
+
+Understudy makes **no AWS Builder claim**. No Bedrock or AgentCore call is implemented. No AWS credentials were available to validate the optional Bedrock addition, so this polish pass retains the tested deterministic evaluator. Cloudflare D1 is used by the full workspace; the isolated `/demo` needs no cloud service account. Kiro use is not claimed.
+
+OpenAI Codex assisted the 15 October verification/documentation work. Use [PRODUCT-FEEDBACK.md](PRODUCT-FEEDBACK.md) as a draft when the submission form asks about development tools, and confirm any earlier tool history yourself. No submission form or upload was touched.
