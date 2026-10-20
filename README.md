@@ -10,7 +10,7 @@ The daily overview shows actual open loans, outstanding components, maintenance 
 
 [Local introduction](http://localhost:4320) · [Judge demo](http://localhost:4320/demo)
 
-Submitted to the Amazon Developer Hackathon on 28 September 2026: [Devpost entry](https://devpost.com/software/understudy-lf5dbt) · [public demo video](https://www.youtube.com/watch?v=s8CCvcBZOeo). The entry uses the permitted self-hosted MCP demonstration route. It does not claim Alexa+ distribution or an Echo-device demonstration.
+Submitted to the Amazon Developer Hackathon on 28 September 2026: [Devpost entry](https://devpost.com/software/understudy-lf5dbt) · [current 104-second demo video](https://www.youtube.com/watch?v=pQWDqDMOBcg), published 11 October. The [earlier 28 September video](https://www.youtube.com/watch?v=s8CCvcBZOeo) remains available. The entry uses the permitted self-hosted MCP demonstration route. It does not claim Alexa+ distribution or an Echo-device demonstration.
 
 ## Storage and identity
 
